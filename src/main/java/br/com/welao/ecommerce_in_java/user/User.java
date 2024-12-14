@@ -23,12 +23,14 @@ public class User {
 
 //  Natural person
     @Column(unique=true)
-    private String CPF;
+    private String cpf;
+
     private String fullName;
 
 //    Legal Entity
     @Column(unique=true)
-    private String CNPJ;
+    private String cnpj;
+
     private String corporateName;
     private String tradeName;
     private String contactPerson;

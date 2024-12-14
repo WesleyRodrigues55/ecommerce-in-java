@@ -33,7 +33,7 @@ public class Addresses {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "addresses", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetails> orderDetails;
 
 }

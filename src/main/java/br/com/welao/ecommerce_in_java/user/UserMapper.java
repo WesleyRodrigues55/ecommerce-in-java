@@ -1,0 +1,25 @@
+package br.com.welao.ecommerce_in_java.user;
+
+public class UserMapper {
+    public static User toEntity(UserDTO dto) {
+        User user = new User();
+        user.setEmail(dto.getEmail());
+        user.setPhone(dto.getPhone());
+        user.setCpf(dto.getCpf());
+        user.setCnpj(dto.getCnpj());
+        user.setTypePerson(dto.getTypePerson());
+
+        return user;
+    }
+
+    public static UserDTO toDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setCpf(user.getCpf());
+        dto.setCnpj(user.getCnpj());
+        dto.setTypePerson(user.getTypePerson());
+
+        return dto;
+    }
+}

@@ -23,5 +23,5 @@ public class Stock {
     // relation with product
     @OneToOne
     @JoinColumn(name = "product_id")
-    private Products product;
+    private Products products;
 }

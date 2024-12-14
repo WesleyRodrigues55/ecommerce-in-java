@@ -23,10 +23,10 @@ public class ItemsCart {
     // relation with cart
     @ManyToOne
     @JoinColumn(name = "cart_id")
-    private Carts cart;
+    private Carts carts;
 
     // relation with product
     @ManyToOne
     @JoinColumn(name = "product_id")
-    private Products product;
+    private Products products;
 }

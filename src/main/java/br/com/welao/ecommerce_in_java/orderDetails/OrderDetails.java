@@ -31,15 +31,15 @@ public class OrderDetails {
     // relation with address
     @ManyToOne
     @JoinColumn(name = "address_id")
-    private Addresses address;
+    private Addresses addresses;
 
     // relation with cart
     @OneToOne
     @JoinColumn(name = "cart_id")
-    private Carts cart;
+    private Carts carts;
 
     // relation with payment
-    @OneToOne(mappedBy = "order_details", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "orderDetails", cascade = CascadeType.ALL, orphanRemoval = true)
     private Payments payments;
 
 }
