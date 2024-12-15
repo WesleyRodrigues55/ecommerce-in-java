@@ -45,8 +45,6 @@ public class User {
 
     private String verificationCode;
 
-    private LocalDateTime codeExpiresAt;
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 

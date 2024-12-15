@@ -1,5 +1,6 @@
 package br.com.welao.ecommerce_in_java.user;
 
+import br.com.welao.ecommerce_in_java.Utils.Utils;
 import br.com.welao.ecommerce_in_java.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,12 +16,11 @@ public class UserService {
     @Autowired
     private EmailService emailService;
 
-    public void messageCreateAccount(String to) {
+    public void messageCreateAccount(String to, String verificationCode) {
+        String subject = "Created Account Successfully";
+        String body = "Please use the code " + verificationCode + " to login to the www.meusite.com/login platform.";
 
-        emailService.sendEmail(
-                to,
-                "Created Account Successfully",
-                "Please use the code '9dwad9a' to login to the www.meusite.com platform.");
+        emailService.sendEmail(to, subject, body);
     }
 
     public ResponseEntity<?> create(UserDTO userDTO) {
@@ -48,13 +48,69 @@ public class UserService {
                 break;
         }
 
+        var code = Utils.generatorRandomCode();
+        userDTO.setVerificationCode(code);
+
         User user = UserMapper.toEntity(userDTO);
         User savedUser = userRepository.save(user);
 
-        messageCreateAccount(userDTO.getEmail());
+//        messageCreateAccount(userDTO.getEmail(), code);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
+
+    public void messageGenerateCodeForLogin(String to, String verificationCode) {
+        String subject = "Your code for access is...";
+        String body = "Please use the code " + verificationCode + " to login to the www.meusite.com/login platform.";
+
+        emailService.sendEmail(to, subject, body);
+    }
+
+
+    // 1o step - for login
+    // get email and generate the code for access
+    public ResponseEntity<?> login(UserDTO userDTO) {
+        // get input email
+        var user = userRepository.findByEmail(userDTO.getEmail());
+        if (user.getEmail() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email not found");
+        }
+
+        var code = Utils.generatorRandomCode();
+        user.setVerificationCode(code);
+
+        // update column verificationCode
+        Utils.copyNonNullProperties(userDTO, user);
+        userRepository.save(user);
+
+        // send email with code access
+//        messageGenerateCodeForLogin(userDTO.getEmail(), code);
+
+        // OK
+        return ResponseEntity.status(HttpStatus.OK).body("Code generated successfully!");
+    }
+
+    // 2o step - for login
+    // get email and generated code for create auth and successful login
+    public ResponseEntity<?> validateCodeForAccessAndCreateAuth(UserDTO userDTO) {
+        // validate email
+        var user = userRepository.findByEmail(userDTO.getEmail());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email not found");
+        }
+
+        // validate code
+        var code = user.getVerificationCode();
+        if (code == null || !code.equals(userDTO.getVerificationCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect verification code");
+        }
+
+        // generate auth and expires session
+
+        // OK
+        return ResponseEntity.status(HttpStatus.OK).body("Login successful!");
+    }
+
 
 
 }

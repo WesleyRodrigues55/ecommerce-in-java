@@ -8,6 +8,7 @@ public class UserMapper {
         user.setCpf(dto.getCpf());
         user.setCnpj(dto.getCnpj());
         user.setTypePerson(dto.getTypePerson());
+        user.setVerificationCode(dto.getVerificationCode());
 
         return user;
     }
@@ -19,6 +20,7 @@ public class UserMapper {
         dto.setCpf(user.getCpf());
         dto.setCnpj(user.getCnpj());
         dto.setTypePerson(user.getTypePerson());
+        dto.setVerificationCode(user.getVerificationCode());
 
         return dto;
     }
