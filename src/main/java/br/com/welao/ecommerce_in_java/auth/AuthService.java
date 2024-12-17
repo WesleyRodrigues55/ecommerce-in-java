@@ -48,7 +48,7 @@ public class AuthService {
         return ResponseEntity.ok().build();
     }
 
-    public void messageRegister(String to) {
+    private void messageRegister(String to) {
         String subject = "Created Account Successfully";
         String body = "Please go to www.meusite.com/login to log in";
 
@@ -73,7 +73,7 @@ public class AuthService {
         return ResponseEntity.status(HttpStatus.OK).body("Code generated successfully!");
     }
 
-    public void generateCodeForLogin(String to, String verificationCode) {
+    private void generateCodeForLogin(String to, String verificationCode) {
         String subject = "Your code for access is...";
         String body = "Please use the code " + verificationCode + " to login to the www.meusite.com/login platform.";
 
