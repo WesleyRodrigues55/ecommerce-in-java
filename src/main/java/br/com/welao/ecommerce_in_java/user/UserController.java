@@ -13,19 +13,5 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/create-account")
-    public ResponseEntity<?> create(@RequestBody UserDTO userDTO) {
-        return userService.create(userDTO);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDTO userDTO) {
-        return userService.login(userDTO);
-    }
-
-    @PostMapping("/validate-code-for-login")
-    public ResponseEntity<?> validateCodeForAccessAndCreateAuth(@RequestBody UserDTO userDTO) {
-        return userService.validateCodeForAccessAndCreateAuth(userDTO);
-    }
 
 }
