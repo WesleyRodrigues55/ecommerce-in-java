@@ -1,4 +1,4 @@
-package br.com.welao.ecommerce_in_java.Utils;
+package br.com.welao.ecommerce_in_java.utils;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;

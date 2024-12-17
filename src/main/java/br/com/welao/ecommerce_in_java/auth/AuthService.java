@@ -1,6 +1,6 @@
 package br.com.welao.ecommerce_in_java.auth;
 
-import br.com.welao.ecommerce_in_java.Utils.Utils;
+import br.com.welao.ecommerce_in_java.utils.Utils;
 import br.com.welao.ecommerce_in_java.email.EmailService;
 import br.com.welao.ecommerce_in_java.infra.security.TokenService;
 import br.com.welao.ecommerce_in_java.user.*;
@@ -26,14 +26,6 @@ public class AuthService {
 
     @Autowired
     private TokenService tokenService;
-
-
-    public AuthService(AuthenticationManager authenticationManager, TokenService tokenService, UserService userService, EmailService emailService) {
-        this.authenticationManager = authenticationManager;
-        this.tokenService = tokenService;
-        this.userService = userService;
-        this.emailService = emailService;
-    }
 
     public ResponseEntity<?> register(UserDTO userDTO) {
         if (!this.userService.isEmailAvailable(userDTO.getEmail())) {

@@ -1,10 +1,6 @@
 package br.com.welao.ecommerce_in_java.user;
 
-import br.com.welao.ecommerce_in_java.Utils.Utils;
-import br.com.welao.ecommerce_in_java.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,10 +8,6 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public boolean isEmailAvailable(String email) {
         return userRepository.findByEmail(email) == null;

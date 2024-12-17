@@ -15,11 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
     private AuthService authenticationService;
-
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid UserDTO userDTO) {

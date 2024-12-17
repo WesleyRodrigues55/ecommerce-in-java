@@ -1,6 +1,5 @@
 package br.com.welao.ecommerce_in_java.products;
 
-
 import br.com.welao.ecommerce_in_java.itemsCart.ItemsCart;
 import br.com.welao.ecommerce_in_java.stock.Stock;
 import jakarta.persistence.*;
