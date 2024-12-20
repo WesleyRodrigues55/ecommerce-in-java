@@ -81,7 +81,10 @@ public class AuthService {
     }
 
     public ResponseEntity<?> login(AuthDTO authenticationDTO) {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(authenticationDTO.email(), authenticationDTO.verificationCode());
+        var usernamePassword = new UsernamePasswordAuthenticationToken(
+                authenticationDTO.email(),
+                authenticationDTO.verificationCode()
+        );
         var auth = this.authenticationManager.authenticate(usernamePassword);
         var token = tokenService.generateToken((User) auth.getPrincipal());
 

@@ -1,11 +1,17 @@
 spring.application.name=ecommerce-in-java
-spring.datasource.url=jdbc:h2:mem:ecommerce-in-java
-spring.datasource.driverClassName=org.h2.Driver
-spring.datasource.username=admin
-spring.datasource.password=admin
-spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
-spring.h2.console.enabled=true
 
+spring.datasource.url=jdbc:postgresql://<endpoint_rds>:5432/<database_name>
+spring.datasource.driverClassName=org.postgresql.Driver
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+spring.jpa.hibernate.ddl-auto=update
+
+#spring.datasource.url=jdbc:h2:mem:ecommerce-in-java
+#spring.datasource.driverClassName=org.h2.Driver
+#spring.datasource.username=admin
+#spring.datasource.password=admin
+#spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+#spring.h2.console.enabled=true
 
 spring.mail.host=${your_smtp.domain.com}
 spring.mail.port=${port}
