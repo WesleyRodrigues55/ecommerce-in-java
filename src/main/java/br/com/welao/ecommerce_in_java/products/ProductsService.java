@@ -21,7 +21,17 @@ public class ProductsService {
         this.productsRepository.save(product);
 
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(product);
+    }
+
+    public ResponseEntity<?> listById(long id) {
+        var product = this.productsRepository.findById(id);
+        if (product == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+        }
+
+        return ResponseEntity.ok().body(product);
+
     }
 
 }
