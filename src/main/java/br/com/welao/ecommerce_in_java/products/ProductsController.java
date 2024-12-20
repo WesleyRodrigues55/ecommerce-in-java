@@ -17,9 +17,24 @@ public class ProductsController {
         return this.productsService.register(productsDTO);
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<?> list() {
+        return this.productsService.list();
+    }
+
     @GetMapping("/list/{id}")
-    public ResponseEntity<?> listByID(@PathVariable int id) {
+    public ResponseEntity<?> listByID(@PathVariable long id) {
         return this.productsService.listById(id);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> update(@PathVariable long id, @RequestBody @Valid ProductsDTO productsDTO) {
+        return this.productsService.update(id, productsDTO);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable long id) {
+        return this.productsService.delete(id);
     }
 
 }
