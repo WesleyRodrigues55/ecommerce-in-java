@@ -1,10 +1,12 @@
 spring.application.name=ecommerce-in-java
 
-spring.datasource.url=jdbc:postgresql://<endpoint_rds>:5432/<database_name>
-spring.datasource.driverClassName=org.postgresql.Driver
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+spring.datasource.url=jdbc:sqlserver://<localhost>:1433;databaseName=<database_name>;encrypt=false
+spring.datasource.username=<username>
+spring.datasource.password=<password>
+spring.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver
 spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.SQLServerDialect
 
 #spring.datasource.url=jdbc:h2:mem:ecommerce-in-java
 #spring.datasource.driverClassName=org.h2.Driver
