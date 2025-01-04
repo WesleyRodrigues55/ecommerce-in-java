@@ -2,6 +2,7 @@ package br.com.welao.ecommerce_in_java.products;
 
 import br.com.welao.ecommerce_in_java.itemsCart.ItemsCart;
 import br.com.welao.ecommerce_in_java.stock.Stock;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -27,6 +28,7 @@ public class Products {
     private Boolean active;
 
     @OneToOne(mappedBy = "products", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Stock stock;
 
     @OneToMany(mappedBy = "products", cascade = CascadeType.ALL, orphanRemoval = true)

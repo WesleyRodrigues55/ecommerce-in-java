@@ -37,4 +37,9 @@ public class ProductsController {
         return this.productsService.delete(id);
     }
 
+    @PutMapping("/enable/{id}")
+    public ResponseEntity<?> enable(@PathVariable long id) {
+        return this.productsService.enable(id);
+    }
+
 }

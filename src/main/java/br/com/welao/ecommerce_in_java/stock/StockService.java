@@ -1,5 +1,7 @@
 package br.com.welao.ecommerce_in_java.stock;
 
+import br.com.welao.ecommerce_in_java.products.ProductsRepository;
+import br.com.welao.ecommerce_in_java.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,23 +13,84 @@ public class StockService {
     @Autowired
     private StockRepository stockRepository;
 
-    // check relation with Products
+    @Autowired
+    private ProductsRepository productsRepository;
+
     public ResponseEntity<?> register(StockDTO stockDTO) {
+        var productId = productsRepository.findById(stockDTO.getProducts().getId());
+        if (productId == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Product id not found");
+        }
+
         if (this.stockRepository.findByName(stockDTO.getName()) != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Name already exists");
         }
 
-        Stock stock = StockMapper.toEntity(stockDTO);
-        this.stockRepository.save(stock);
+        try {
+            Stock stock = StockMapper.toEntity(stockDTO);
+            this.stockRepository.save(stock);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(stock);
+            return ResponseEntity.status(HttpStatus.CREATED).body(stock);
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The product is already registered in stock");
+        }
     }
 
-    // create list stock
+    public ResponseEntity<?> list() {
+        var stocks = this.stockRepository.findByActiveTrue();
+        if (stocks.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No stocks found");
+        }
 
-    // create list stock by id
+        return ResponseEntity.status(HttpStatus.OK).body(stocks);
+    }
 
-    // create update stock
+    public ResponseEntity<?> listById(long id) {
+        var stock = this.stockRepository.findById(id);
+        if (stock == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No stock found");
+        }
 
-    // create disable stock
+        return ResponseEntity.status(HttpStatus.OK).body(stock);
+    }
+
+    public ResponseEntity<?> update(long id, StockDTO stockDTO) {
+        var stock = this.stockRepository.findById(id);
+        if (stock == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No stock found");
+        }
+
+        if (this.stockRepository.findByName(stockDTO.getName()) != null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Name already exists");
+        }
+
+        Utils.copyNonNullProperties(stockDTO, stock);
+        this.stockRepository.save(stock);
+
+        return ResponseEntity.status(HttpStatus.OK).body(stock);
+    }
+
+    public ResponseEntity<?> delete(long id) {
+        var stock = this.stockRepository.findById(id);
+        if (stock == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No stock found");
+        }
+
+        stock.setActive(false);
+        this.stockRepository.save(stock);
+
+        return ResponseEntity.status(HttpStatus.OK).body(stock);
+    }
+
+    public ResponseEntity<?> enable(long id) {
+        var stock = this.stockRepository.findById(id);
+        if (stock == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No stock found");
+        }
+
+        stock.setActive(true);
+        this.stockRepository.save(stock);
+
+        return ResponseEntity.status(HttpStatus.OK).body(stock);
+    }
 }

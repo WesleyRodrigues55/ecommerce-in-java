@@ -25,8 +25,7 @@ public class ProductsService {
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
-    // create pagination
-    // list only products active - OK
+    // create pagination ?
     public ResponseEntity<?> list() {
         var products = this.productsRepository.findAllByActiveTrue();
         if (products == null || products.isEmpty()) {
@@ -45,7 +44,6 @@ public class ProductsService {
         return ResponseEntity.ok().body(product);
     }
 
-    // updated product
     public ResponseEntity<?> update(long id, ProductsDTO productsDTO) {
         var product = this.productsRepository.findById(id);
         if (product == null) {
@@ -58,7 +56,6 @@ public class ProductsService {
         return ResponseEntity.status(HttpStatus.OK).body(product);
     }
 
-    // disable product
     public ResponseEntity<?> delete(long id) {
         var product = this.productsRepository.findById(id);
         if (product == null) {
@@ -71,5 +68,15 @@ public class ProductsService {
         return ResponseEntity.status(HttpStatus.OK).body("product is deleted.");
     }
 
+    public ResponseEntity<?> enable(long id) {
+        var product = this.productsRepository.findById(id);
+        if (product == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
+        }
 
+        product.setActive(true);
+        this.productsRepository.save(product);
+
+        return ResponseEntity.status(HttpStatus.OK).body("product is deleted.");
+    }
 }
