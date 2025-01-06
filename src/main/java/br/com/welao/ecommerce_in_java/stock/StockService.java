@@ -3,6 +3,7 @@ package br.com.welao.ecommerce_in_java.stock;
 import br.com.welao.ecommerce_in_java.products.ProductsRepository;
 import br.com.welao.ecommerce_in_java.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,12 @@ public class StockService {
         if (stocks.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No stocks found");
         }
+
+        return ResponseEntity.status(HttpStatus.OK).body(stocks);
+    }
+
+    public ResponseEntity<?> listPaginatedItems(Pageable pageable) {
+        var stocks = this.stockRepository.findAll(pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(stocks);
     }
