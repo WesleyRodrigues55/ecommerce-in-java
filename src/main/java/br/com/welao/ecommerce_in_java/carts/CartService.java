@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,42 +20,36 @@ public class CartService {
     @Autowired
     private StockRepository stockRepository;
 
-    public ResponseEntity<?> create(CartDTO cartDTO) {
+    private void validQuantityItemStockAndUpdateQuantity(CartDTO cartDTO) {
         var productID = cartDTO.getItemsCarts().get(0).getProducts().getId();
         var quantityItem = cartDTO.getItemsCarts().get(0).getQuantity();
 
         var quantityItemStock = this.stockRepository.findByProductsId(productID);
         if (quantityItem > quantityItemStock.getQuantity() || quantityItem <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product not enough in stock.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         var debitStock = this.stockRepository.findByProductsId(productID);
         debitStock.setQuantity(debitStock.getQuantity() - quantityItem);
 
         this.stockRepository.save(debitStock);
+    }
 
-        var user = this.cartRepository.findByUserId(cartDTO.getUser().getId());
-        var cartIsOpen = this.cartRepository.findByPurchaseStatus(false);
+    private void createANewCart(CartDTO cartDTO) {
+        double totalValue = cartDTO.getItemsCarts().stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
 
-        if (user == null || user.isEmpty() && cartIsOpen == null) {
-            double totalValue = cartDTO.getItemsCarts().stream()
-                    .mapToDouble(item -> item.getPrice() * item.getQuantity())
-                    .sum();
+        cartDTO.setTotalValue((float)totalValue);
+        cartDTO.setPurchaseStatus(false);
 
-            cartDTO.setTotalValue((float)totalValue);
-            cartDTO.setPurchaseStatus(false);
+        Cart cart = CartMapper.toEntity(cartDTO);
+        cart.getItemsCart().get(0).setCart(cart);
 
-            Cart cart = CartMapper.toEntity(cartDTO);
-            cart.getItemsCart().get(0).setCart(cart);
+        this.cartRepository.save(cart);
+    }
 
-            this.cartRepository.save(cart);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body("Carts created successfully");
-        }
-
-        List<ItemsCart> existingItems = cartIsOpen.getItemsCart();
-        ItemsCart newItem = CartMapper.toEntity(cartDTO).getItemsCart().get(0);
-
+    private void addNewItemsInCartOrUpdateExistsItems(List<ItemsCart> existingItems, ItemsCart newItem, Cart cartIsOpen) {
         if (newItem != null) {
             Optional<ItemsCart> existingItem = existingItems.stream()
                     .filter(item -> item.getProducts().getId() == newItem.getProducts().getId())
@@ -78,15 +73,33 @@ public class CartService {
         cartIsOpen.setTotalValue((float) updatedTotalValue);
 
         this.cartRepository.save(cartIsOpen);
-
-        return ResponseEntity.status(HttpStatus.OK).body("Carts updated successfully");
     }
 
+    public ResponseEntity<?> create(CartDTO cartDTO) {
 
-    public ResponseEntity<?> list() {
-        var carts = cartRepository.findAll();
+        // verify quantity items in stock
+        try {
+            validQuantityItemStockAndUpdateQuantity(cartDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product not enough in stock.");
+        }
 
+        var user = this.cartRepository.findByUserId(cartDTO.getUser().getId());
+        var cartIsOpen = this.cartRepository.findByPurchaseStatus(false);
 
-        return ResponseEntity.status(HttpStatus.OK).body(carts);
+        // verify if exists a user and a cart open
+        if (user == null || user.isEmpty() && cartIsOpen == null) {
+            createANewCart(cartDTO);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body("Carts created successfully");
+        }
+
+        // if exists a cart open, update items cart or add new item cart
+        List<ItemsCart> existingItems = cartIsOpen.getItemsCart();
+        ItemsCart newItem = CartMapper.toEntity(cartDTO).getItemsCart().get(0);
+
+        addNewItemsInCartOrUpdateExistsItems(existingItems, newItem, cartIsOpen);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Carts updated successfully");
     }
 }
