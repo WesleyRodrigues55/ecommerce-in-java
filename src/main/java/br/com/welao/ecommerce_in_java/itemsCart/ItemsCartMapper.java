@@ -2,15 +2,15 @@ package br.com.welao.ecommerce_in_java.itemsCart;
 
 public class ItemsCartMapper {
     public static ItemsCart toEntity(ItemsCartDTO dto) {
-        ItemsCart itemsCarts = new ItemsCart();
+        ItemsCart itemsCart = new ItemsCart();
 
-        itemsCarts.setQuantity(dto.getQuantity());
-        itemsCarts.setPrice(dto.getPrice());
-        itemsCarts.setObservation(dto.getObservation());
-        itemsCarts.setCarts(dto.getCarts());
-        itemsCarts.setProducts(dto.getProducts());
+        itemsCart.setQuantity(dto.getQuantity());
+        itemsCart.setPrice(dto.getPrice());
+        itemsCart.setObservation(dto.getObservation());
+        itemsCart.setCart(dto.getCart());
+        itemsCart.setProducts(dto.getProducts());
 
-        return itemsCarts;
+        return itemsCart;
     }
 
     public static ItemsCartDTO toDto(ItemsCart itemsCart) {
@@ -19,7 +19,7 @@ public class ItemsCartMapper {
         dto.setQuantity(itemsCart.getQuantity());
         dto.setPrice(itemsCart.getPrice());
         dto.setObservation(itemsCart.getObservation());
-        dto.setCarts(itemsCart.getCarts());
+        dto.setCart(itemsCart.getCart());
         dto.setProducts(itemsCart.getProducts());
 
         return dto;

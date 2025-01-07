@@ -1,7 +1,7 @@
 package br.com.welao.ecommerce_in_java.orderDetails;
 
 import br.com.welao.ecommerce_in_java.addresses.Addresses;
-import br.com.welao.ecommerce_in_java.carts.Carts;
+import br.com.welao.ecommerce_in_java.carts.Cart;
 import br.com.welao.ecommerce_in_java.payments.Payments;
 import br.com.welao.ecommerce_in_java.user.User;
 import jakarta.persistence.*;
@@ -36,7 +36,7 @@ public class OrderDetails {
     // relation with cart
     @OneToOne
     @JoinColumn(name = "cart_id")
-    private Carts carts;
+    private Cart cart;
 
     // relation with payment
     @OneToOne(mappedBy = "orderDetails", cascade = CascadeType.ALL, orphanRemoval = true)

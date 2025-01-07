@@ -7,19 +7,19 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("cart")
-public class CartsController {
+public class CartController {
 
     @Autowired
-    private CartsService cartsService;
+    private CartService cartService;
 
     @GetMapping("/list")
     public ResponseEntity<?> list() {
-        return this.cartsService.list();
+        return this.cartService.list();
     }
 
     @PostMapping("/create-cart")
-    public ResponseEntity<?> create(@RequestBody @Valid CartsDTO cartsDTO) {
-        return this.cartsService.create(cartsDTO);
+    public ResponseEntity<?> create(@RequestBody @Valid CartDTO cartDTO) {
+        return this.cartService.create(cartDTO);
     }
 
 }

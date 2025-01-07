@@ -2,7 +2,7 @@ package br.com.welao.ecommerce_in_java.user;
 
 
 import br.com.welao.ecommerce_in_java.addresses.Addresses;
-import br.com.welao.ecommerce_in_java.carts.Carts;
+import br.com.welao.ecommerce_in_java.carts.Cart;
 import br.com.welao.ecommerce_in_java.orderDetails.OrderDetails;
 import jakarta.persistence.*;
 import lombok.*;
@@ -62,7 +62,7 @@ public class User implements UserDetails {
     private List<OrderDetails> orderDetails;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Carts> carts;
+    private List<Cart> carts;
 
 
     @Override

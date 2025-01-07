@@ -1,6 +1,6 @@
 package br.com.welao.ecommerce_in_java.itemsCart;
 
-import br.com.welao.ecommerce_in_java.carts.Carts;
+import br.com.welao.ecommerce_in_java.carts.Cart;
 import br.com.welao.ecommerce_in_java.products.Products;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -23,7 +23,7 @@ public class ItemsCart {
     // relation with cart
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
-    private Carts carts;
+    private Cart cart;
 
     // relation with product
     @ManyToOne

@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CartsDTO {
+public class CartDTO {
     private Boolean purchaseStatus;
     private float totalValue;
     private User user;

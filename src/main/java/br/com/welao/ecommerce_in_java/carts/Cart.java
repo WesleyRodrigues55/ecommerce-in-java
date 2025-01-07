@@ -13,7 +13,7 @@ import java.util.List;
 
 @Data
 @Entity(name="tb_carts")
-public class Carts {
+public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,10 +30,10 @@ public class Carts {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "carts", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemsCart> itemsCarts;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemsCart> itemsCart;
 
-    @OneToOne(mappedBy = "carts", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private OrderDetails orderDetails;
 
 }
