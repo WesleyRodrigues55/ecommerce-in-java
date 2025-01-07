@@ -26,7 +26,6 @@ public class Carts {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    // relation with user
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

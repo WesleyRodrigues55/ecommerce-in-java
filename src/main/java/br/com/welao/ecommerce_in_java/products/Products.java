@@ -32,6 +32,7 @@ public class Products {
     private Stock stock;
 
     @OneToMany(mappedBy = "products", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<ItemsCart> itemsCart;
 
 }

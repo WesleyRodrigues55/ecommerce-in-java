@@ -2,7 +2,6 @@ package br.com.welao.ecommerce_in_java.products;
 
 import br.com.welao.ecommerce_in_java.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

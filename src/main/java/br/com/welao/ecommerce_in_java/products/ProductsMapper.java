@@ -1,10 +1,5 @@
 package br.com.welao.ecommerce_in_java.products;
 
-import br.com.welao.ecommerce_in_java.user.User;
-import br.com.welao.ecommerce_in_java.user.UserDTO;
-import jakarta.persistence.Column;
-import lombok.Data;
-
 public class ProductsMapper {
 
     public static Products toEntity(ProductsDTO dto) {

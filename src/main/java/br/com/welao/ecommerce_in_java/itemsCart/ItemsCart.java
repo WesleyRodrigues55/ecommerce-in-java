@@ -22,7 +22,7 @@ public class ItemsCart {
 
     // relation with cart
     @ManyToOne
-    @JoinColumn(name = "cart_id")
+    @JoinColumn(name = "cart_id", nullable = false)
     private Carts carts;
 
     // relation with product
