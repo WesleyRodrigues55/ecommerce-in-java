@@ -24,9 +24,18 @@ public class CartService {
         var productID = cartDTO.getItemsCarts().get(0).getProducts().getId();
         var quantityItem = cartDTO.getItemsCarts().get(0).getQuantity();
 
+        var price = cartDTO.getItemsCarts().get(0).getPrice();
+        if (price <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid price for product ID: " + productID);
+        }
+
         var quantityItemStock = this.stockRepository.findByProductsId(productID);
+        if (quantityItemStock == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Product with ID %d not found", productID));
+        }
+
         if (quantityItem > quantityItemStock.getQuantity() || quantityItem <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Product with ID %d has insufficient stock.", productID));
         }
 
         var debitStock = this.stockRepository.findByProductsId(productID);
@@ -81,13 +90,13 @@ public class CartService {
         try {
             validQuantityItemStockAndUpdateQuantity(cartDTO);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product not enough in stock.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
         var user = this.cartRepository.findByUserId(cartDTO.getUser().getId());
         var cartIsOpen = this.cartRepository.findByPurchaseStatus(false);
 
-        // verify if exists a user and a cart open
+        // verify if exists a user with a cart open
         if (user == null || user.isEmpty() && cartIsOpen == null) {
             createANewCart(cartDTO);
 

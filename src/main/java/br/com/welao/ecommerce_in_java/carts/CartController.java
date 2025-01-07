@@ -12,11 +12,6 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
-    @GetMapping("/list")
-    public ResponseEntity<?> list() {
-        return this.cartService.list();
-    }
-
     @PostMapping("/create-cart")
     public ResponseEntity<?> create(@RequestBody @Valid CartDTO cartDTO) {
         return this.cartService.create(cartDTO);
