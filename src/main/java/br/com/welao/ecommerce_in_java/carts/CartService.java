@@ -1,6 +1,7 @@
 package br.com.welao.ecommerce_in_java.carts;
 
 import br.com.welao.ecommerce_in_java.itemsCart.ItemsCart;
+import br.com.welao.ecommerce_in_java.stock.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,23 @@ public class CartService {
     @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    private StockRepository stockRepository;
+
     public ResponseEntity<?> create(CartDTO cartDTO) {
+        var productID = cartDTO.getItemsCarts().get(0).getProducts().getId();
+        var quantityItem = cartDTO.getItemsCarts().get(0).getQuantity();
+
+        var quantityItemStock = this.stockRepository.findByProductsId(productID);
+        if (quantityItem > quantityItemStock.getQuantity() || quantityItem <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product not enough in stock.");
+        }
+
+        var debitStock = this.stockRepository.findByProductsId(productID);
+        debitStock.setQuantity(debitStock.getQuantity() - quantityItem);
+
+        this.stockRepository.save(debitStock);
+
         var user = this.cartRepository.findByUserId(cartDTO.getUser().getId());
         var cartIsOpen = this.cartRepository.findByPurchaseStatus(false);
 

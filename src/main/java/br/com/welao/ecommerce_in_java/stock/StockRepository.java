@@ -10,5 +10,6 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 
     Stock findByName(String name);
     Stock findById(long id);
+    Stock findByProductsId(long productId);
     List<Stock> findByActiveTrue();
 }
