@@ -10,6 +10,5 @@ import java.util.List;
 public interface ProductsRepository extends JpaRepository<Products, Long> {
 
     Products findByName(String name);
-    Products findById(long id);
     List<Products> findAllByActiveTrue();
 }

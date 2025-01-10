@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class ProductsService {
 
@@ -44,19 +46,21 @@ public class ProductsService {
     }
 
     public ResponseEntity<?> listById(long id) {
-        var product = this.productsRepository.findById(id);
-        if (product == null) {
+        Optional<Products> productOptional = this.productsRepository.findById(id);
+        if (productOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
+        Products product = productOptional.get();
 
         return ResponseEntity.ok().body(product);
     }
 
     public ResponseEntity<?> update(long id, ProductsDTO productsDTO) {
-        var product = this.productsRepository.findById(id);
-        if (product == null) {
+        Optional<Products> productOptional = this.productsRepository.findById(id);
+        if (productOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
+        Products product = productOptional.get();
 
         Utils.copyNonNullProperties(productsDTO, product);
         this.productsRepository.save(product);
@@ -65,10 +69,11 @@ public class ProductsService {
     }
 
     public ResponseEntity<?> delete(long id) {
-        var product = this.productsRepository.findById(id);
-        if (product == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
+        Optional<Products> productOptional = this.productsRepository.findById(id);
+        if (productOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
+        Products product = productOptional.get();
 
         product.setActive(false);
         this.productsRepository.save(product);
@@ -77,10 +82,11 @@ public class ProductsService {
     }
 
     public ResponseEntity<?> enable(long id) {
-        var product = this.productsRepository.findById(id);
-        if (product == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
+        Optional<Products> productOptional = this.productsRepository.findById(id);
+        if (productOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
+        Products product = productOptional.get();
 
         product.setActive(true);
         this.productsRepository.save(product);

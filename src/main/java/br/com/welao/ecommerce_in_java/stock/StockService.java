@@ -1,5 +1,6 @@
 package br.com.welao.ecommerce_in_java.stock;
 
+import br.com.welao.ecommerce_in_java.itemsCart.ItemsCart;
 import br.com.welao.ecommerce_in_java.products.ProductsRepository;
 import br.com.welao.ecommerce_in_java.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class StockService {
@@ -53,19 +56,21 @@ public class StockService {
     }
 
     public ResponseEntity<?> listById(long id) {
-        var stock = this.stockRepository.findById(id);
-        if (stock == null) {
+        Optional<Stock> stockOptional = this.stockRepository.findById(id);
+        if (stockOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No stock found");
         }
+        Stock stock = stockOptional.get();
 
         return ResponseEntity.status(HttpStatus.OK).body(stock);
     }
 
     public ResponseEntity<?> update(long id, StockDTO stockDTO) {
-        var stock = this.stockRepository.findById(id);
-        if (stock == null) {
+        Optional<Stock> stockOptional = this.stockRepository.findById(id);
+        if (stockOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No stock found");
         }
+        Stock stock = stockOptional.get();
 
         if (this.stockRepository.findByName(stockDTO.getName()) != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Name already exists");
@@ -78,10 +83,11 @@ public class StockService {
     }
 
     public ResponseEntity<?> delete(long id) {
-        var stock = this.stockRepository.findById(id);
-        if (stock == null) {
+        Optional<Stock> stockOptional = this.stockRepository.findById(id);
+        if (stockOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No stock found");
         }
+        Stock stock = stockOptional.get();
 
         stock.setActive(false);
         this.stockRepository.save(stock);
@@ -90,14 +96,26 @@ public class StockService {
     }
 
     public ResponseEntity<?> enable(long id) {
-        var stock = this.stockRepository.findById(id);
-        if (stock == null) {
+        Optional<Stock> stockOptional = this.stockRepository.findById(id);
+        if (stockOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No stock found");
         }
+        Stock stock = stockOptional.get();
 
         stock.setActive(true);
         this.stockRepository.save(stock);
 
         return ResponseEntity.status(HttpStatus.OK).body(stock);
+    }
+
+    public void addsOneMoreToTheStock(ItemsCart hasItem) {
+        var productId = hasItem.getProducts().getId();
+        var stock = this.stockRepository.findByProductsId(productId);
+        if (stock == null) {
+            throw new RuntimeException("Stock not found");
+        }
+
+        stock.setQuantity(stock.getQuantity() + 1);
+        this.stockRepository.save(stock);
     }
 }

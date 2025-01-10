@@ -1,10 +1,10 @@
 package br.com.welao.ecommerce_in_java.itemsCart;
 
-import br.com.welao.ecommerce_in_java.carts.CartDTO;
+import br.com.welao.ecommerce_in_java.carts.Cart;
 import br.com.welao.ecommerce_in_java.carts.CartRepository;
-import br.com.welao.ecommerce_in_java.stock.StockDTO;
+import br.com.welao.ecommerce_in_java.carts.CartService;
 import br.com.welao.ecommerce_in_java.stock.StockRepository;
-import br.com.welao.ecommerce_in_java.utils.Utils;
+import br.com.welao.ecommerce_in_java.stock.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,8 +40,11 @@ public class ItemsCartService {
                 this.itemsCartRepository.save(hasItem);
             }
 
-            this.addsOneMoreToTheStock(hasItem);
-            this.updateTotalValueCart(hasItem);
+            StockService stockService = new StockService();
+            stockService.addsOneMoreToTheStock(hasItem);
+
+            CartService cartService = new CartService();
+            cartService.updateTotalValueCart(hasItem);
 
             String message = hasItem.getQuantity() == 0
                     ? "ItemCart successfully deleted"
@@ -54,29 +57,6 @@ public class ItemsCartService {
         }
     }
 
-    private void addsOneMoreToTheStock(ItemsCart hasItem) {
-        var productId = hasItem.getProducts().getId();
-        var stock = this.stockRepository.findByProductsId(productId);
-        if (stock == null) {
-            throw new RuntimeException("Stock not found");
-        }
 
-        stock.setQuantity(stock.getQuantity() + 1);
-        this.stockRepository.save(stock);
-    }
-
-    private void updateTotalValueCart(ItemsCart hasItem) {
-        var cart = this.cartRepository.findById(hasItem.getCart().getId());
-        if (cart == null) {
-            throw new RuntimeException("Cart not found");
-        }
-
-        double totalValue = cart.getItemsCart().stream()
-                .mapToDouble(item -> item.getPrice() * item.getQuantity())
-                .sum();
-
-        cart.setTotalValue((float) totalValue);
-        this.cartRepository.save(cart);
-    }
 
 }
