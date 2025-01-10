@@ -12,7 +12,7 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
-    @PostMapping("/create-cart")
+    @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody @Valid CartDTO cartDTO) {
         return this.cartService.create(cartDTO);
     }

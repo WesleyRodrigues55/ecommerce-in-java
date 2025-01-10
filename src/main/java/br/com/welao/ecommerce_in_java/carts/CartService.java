@@ -1,6 +1,7 @@
 package br.com.welao.ecommerce_in_java.carts;
 
 import br.com.welao.ecommerce_in_java.itemsCart.ItemsCart;
+import br.com.welao.ecommerce_in_java.itemsCart.ItemsCartRepository;
 import br.com.welao.ecommerce_in_java.stock.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -111,4 +112,6 @@ public class CartService {
 
         return ResponseEntity.status(HttpStatus.OK).body("Carts updated successfully");
     }
+
+
 }
