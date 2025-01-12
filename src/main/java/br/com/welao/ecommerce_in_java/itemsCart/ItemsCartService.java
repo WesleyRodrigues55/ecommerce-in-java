@@ -1,6 +1,5 @@
 package br.com.welao.ecommerce_in_java.itemsCart;
 
-import br.com.welao.ecommerce_in_java.carts.Cart;
 import br.com.welao.ecommerce_in_java.carts.CartRepository;
 import br.com.welao.ecommerce_in_java.carts.CartService;
 import br.com.welao.ecommerce_in_java.stock.StockRepository;
