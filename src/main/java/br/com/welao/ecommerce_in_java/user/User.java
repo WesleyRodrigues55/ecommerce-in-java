@@ -4,6 +4,8 @@ package br.com.welao.ecommerce_in_java.user;
 import br.com.welao.ecommerce_in_java.addresses.Addresses;
 import br.com.welao.ecommerce_in_java.carts.Cart;
 import br.com.welao.ecommerce_in_java.orderDetails.OrderDetails;
+import br.com.welao.ecommerce_in_java.payments.Payments;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -56,13 +58,20 @@ public class User implements UserDetails {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Addresses> addresses;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<OrderDetails> orderDetails;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Cart> carts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Payments> payments;
 
 
     @Override

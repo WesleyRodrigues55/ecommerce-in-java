@@ -4,6 +4,7 @@ package br.com.welao.ecommerce_in_java.carts;
 import br.com.welao.ecommerce_in_java.itemsCart.ItemsCart;
 import br.com.welao.ecommerce_in_java.orderDetails.OrderDetails;
 import br.com.welao.ecommerce_in_java.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,12 +29,14 @@ public class Cart {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemsCart> itemsCart;
 
     @OneToOne(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private OrderDetails orderDetails;
 
 }

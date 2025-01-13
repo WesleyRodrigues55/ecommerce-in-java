@@ -10,8 +10,11 @@ public class PaymentsMapper {
         payments.setPaymentStatus(dto.getPaymentStatus());
         payments.setTransactionId(dto.getTransactionId());
         payments.setGateway(dto.getGateway());
-        payments.setCurrency(dto.getCurrency());
+        payments.setPaymentToken(dto.getPaymentToken());
+        payments.setCardLastFourDigits(dto.getCardLastFourDigits());
+        payments.setCardBrand(dto.getCardBrand());
         payments.setOrderDetails(dto.getOrderDetails());
+        payments.setUser(dto.getUser());
 
         return payments;
     }
@@ -25,8 +28,11 @@ public class PaymentsMapper {
         dto.setPaymentStatus(payments.getPaymentStatus());
         dto.setTransactionId(payments.getTransactionId());
         dto.setGateway(payments.getGateway());
-        dto.setCurrency(payments.getCurrency());
+        dto.setPaymentToken(payments.getPaymentToken());
+        dto.setCardLastFourDigits(payments.getCardLastFourDigits());
+        dto.setCardBrand(payments.getCardBrand());
         dto.setOrderDetails(payments.getOrderDetails());
+        dto.setUser(payments.getUser());
 
         return dto;
     }

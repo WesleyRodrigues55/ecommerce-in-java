@@ -2,10 +2,7 @@ package br.com.welao.ecommerce_in_java.itemsCart;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("items-cart")
@@ -19,4 +16,8 @@ public class ItemsCartController {
         return this.itemsCartService.remove(id);
     }
 
+    @GetMapping("/list-by-user-id/{userId}")
+    public ResponseEntity<?> listByUserId(@PathVariable long userId) {
+        return this.itemsCartService.listByUserId(userId);
+    }
 }
