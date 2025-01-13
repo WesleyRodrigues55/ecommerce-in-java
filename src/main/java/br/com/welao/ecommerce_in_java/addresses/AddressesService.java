@@ -67,14 +67,25 @@ public class AddressesService {
     }
 
     public ResponseEntity<?> list(long id) {
-        Optional<Addresses> addresses = this.addressesRepository.findById(id);
-        if (addresses.isEmpty()) {
+        Optional<Addresses> existingAddressUser = this.addressesRepository.findById(id);
+        if (existingAddressUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Address not found");
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(addresses);
+        Addresses address = existingAddressUser.get();
+
+        return ResponseEntity.status(HttpStatus.OK).body(address);
 
     }
 
-    //...
+    public ResponseEntity<?> listByIdUser(long idUser) {
+        Optional<List<Optional<Addresses>>> existingAddressesUser = this.addressesRepository.findByUserId(idUser);
+        if (existingAddressesUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Addresses not found");
+        }
+
+        List<Optional<Addresses>> address = existingAddressesUser.get();
+
+        return ResponseEntity.status(HttpStatus.OK).body(address);
+    }
 }

@@ -27,10 +27,9 @@ public class AddressesController {
         return this.addressesService.list(id);
     }
 
-
     @GetMapping("/list-addresses-user/{idUser}")
     public ResponseEntity<?> listByIdUser(@PathVariable long idUser) {
-        return this.addressesService.list(idUser);
+        return this.addressesService.listByIdUser(idUser);
     }
 
 }
