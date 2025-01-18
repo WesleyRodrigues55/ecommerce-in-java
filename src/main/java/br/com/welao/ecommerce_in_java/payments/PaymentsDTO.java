@@ -8,15 +8,31 @@ import java.time.LocalDateTime;
 
 @Data
 public class PaymentsDTO {
-    private String paymentMethod;
-    private float amount;
+
+    private long amount;
+    private String currency;
+    private String paymentMethodType;
     private LocalDateTime paymentDate;
     private String paymentStatus;
-    private String transactionId;
+    private String paymentMethodId;
+    private String paymentIntentId;
     private String gateway;
     private String paymentToken;
+
+    // card
     private String cardLastFourDigits;
     private String cardBrand;
+
+    // Pix
+    private String pixQrCode;
+    private String pixTransactionId;
+    private LocalDateTime pixExpirationDate;
+    private String pixBankIssuer;
+
+    // rate
+    private float feeAmount;
+    private String feeCurrency;
+
     private OrderDetails orderDetails;
     private User user;
 }

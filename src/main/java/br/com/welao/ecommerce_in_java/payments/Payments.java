@@ -18,24 +18,32 @@ public class Payments {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String paymentMethod;
-
-    private float amount;
+    private long amount;
+    private String currency;
+    private String paymentMethodType;
 
     @CreationTimestamp
     private LocalDateTime paymentDate;
 
+    private String paymentMethodId;
+    private String paymentIntentId;
     private String paymentStatus;
-
-    private String transactionId;
-
     private String gateway;
-
     private String paymentToken;
 
+    // card
     private String cardLastFourDigits;
-
     private String cardBrand;
+
+    // Pix
+    private String pixQrCode;
+    private String pixTransactionId;
+    private LocalDateTime pixExpirationDate;
+    private String pixBankIssuer;
+
+    // rate
+    private float feeAmount;
+    private String feeCurrency;
 
     // relation with user
     @ManyToOne

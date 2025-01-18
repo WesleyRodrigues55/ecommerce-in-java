@@ -102,7 +102,7 @@ public class OrderDetailsService {
         response.put("orderDetails", orderDetails);
         response.put("userId", orderDetails.getUser().getId());
         response.put("cart", orderDetails.getCart());
-        response.put("payment", orderDetails.getPayments().getPaymentMethod());
+        response.put("payment", orderDetails.getPayments().getPaymentMethodType());
         response.put("address", orderDetails.getAddresses());
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
