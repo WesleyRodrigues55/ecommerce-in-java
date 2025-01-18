@@ -3,6 +3,7 @@ package br.com.welao.ecommerce_in_java.auth;
 import br.com.welao.ecommerce_in_java.user.UserDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,17 +20,29 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid UserDTO userDTO) {
-        return this.authenticationService.register(userDTO);
+        try {
+            return this.authenticationService.register(userDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
+        }
     }
 
     @PostMapping("/send-code-email-for-login")
     public ResponseEntity<?> messageGenerateCodeForLogin(@RequestBody @Valid UserDTO userDTO) {
-        return this.authenticationService.messageGenerateCodeForLogin(userDTO);
+        try {
+            return this.authenticationService.messageGenerateCodeForLogin(userDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
+        }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid AuthDTO authenticationDTO) {
-        return this.authenticationService.login(authenticationDTO);
+        try {
+            return this.authenticationService.login(authenticationDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
+        }
     }
 
 }

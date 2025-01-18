@@ -48,7 +48,6 @@ public class PaymentsService {
         }
 
         paymentsDTO.setGateway("STRIPE");
-
         Payments payments = PaymentsMapper.toEntity(paymentsDTO);
         Payments savedPayment = this.paymentsRepository.save(payments);
 
@@ -64,14 +63,41 @@ public class PaymentsService {
             PaymentsDTO paymentsDTO
     ) throws StripeException {
 
-        Optional<Payments> extistingPayment = this.paymentsRepository.findById(paymentId);
-        if (extistingPayment.isEmpty()) {
+        Optional<Payments> existingPayment = this.paymentsRepository.findById(paymentId);
+        if (existingPayment.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment not found");
         }
 
-        Payments payment = extistingPayment.get();
+        if (paymentsDTO.getAmount() <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid amount");
+        }
+        if (paymentsDTO.getCurrency() == null || paymentsDTO.getCurrency().isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Currency is required");
+        }
+
+        Payments payment = existingPayment.get();
         String paymentMethodId = payment.getPaymentMethodId();
 
+        // create payment intent
+        PaymentIntent paymentIntent = createStripPaymentIntent(paymentsDTO, paymentMethodId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("clientSecret", paymentIntent.getClientSecret());
+
+        paymentsDTO.setPaymentStatus(paymentIntent.getStatus());
+        paymentsDTO.setPaymentIntentId(paymentIntent.getId());
+        paymentsDTO.setPaymentToken(paymentIntent.getClientSecret());
+
+        Utils.copyNonNullProperties(paymentsDTO, payment);
+        this.paymentsRepository.save(payment);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    private PaymentIntent createStripPaymentIntent(
+            PaymentsDTO paymentsDTO,
+            String paymentMethodId
+    ) throws StripeException {
         Stripe.apiKey = stripeApiKey;
 
         PaymentIntentCreateParams params =
@@ -88,22 +114,52 @@ public class PaymentsService {
                         .setConfirm(true)
                         .build();
 
-        PaymentIntent paymentIntent = PaymentIntent.create(params);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("clientSecret", paymentIntent.getClientSecret());
-
-        paymentsDTO.setPaymentStatus(paymentIntent.getStatus());
-        paymentsDTO.setPaymentIntentId(paymentIntent.getId());
-        paymentsDTO.setPaymentToken(paymentIntent.getClientSecret());
-
-        Utils.copyNonNullProperties(paymentsDTO, payment);
-        this.paymentsRepository.save(payment);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return PaymentIntent.create(params);
     }
 
 
+    /*
+
+        IF IT CONTAINS THE PIX METHOD TYPE, USE THE METHOD BELOW
+
+     */
+//    public ResponseEntity<?> getPaymentStatus(String paymentIntentId, String sigHeader) throws StripeException {
+//        Stripe.apiKey = stripeApiKey;
+//
+//        Event event = null;
+//
+//        try {
+//            event = Webhook.constructEvent(
+//                    paymentIntentId, sigHeader, stripeApiKey
+//            );
+//        } catch (RuntimeException e) {
+//            // Invalid payload
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+//        } catch (SignatureVerificationException e) {
+//            // Invalid signature
+//           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+//        }
+//
+//        PaymentIntent intent = (PaymentIntent) event
+//                .getDataObjectDeserializer()
+//                .getObject()
+//                .get();
+//
+//        switch(event.getType()) {
+//            case "payment_intent.succeeded":
+//                System.out.println("Succeeded: " + intent.getId());
+//                break;
+//
+//            case "payment_intent.payment_failed":
+//                System.out.println("Failed: " + intent.getId());
+//                break;
+//
+//            default:
+//                break;
+//        }
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(event);
+//    }
 
 
 }

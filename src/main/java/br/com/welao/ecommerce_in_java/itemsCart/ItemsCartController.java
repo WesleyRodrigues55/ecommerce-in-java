@@ -1,6 +1,7 @@
 package br.com.welao.ecommerce_in_java.itemsCart;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,11 +14,19 @@ public class ItemsCartController {
 
     @PutMapping("/remove/{id}")
     public ResponseEntity<?> remove(@PathVariable long id) {
-        return this.itemsCartService.remove(id);
+        try {
+            return this.itemsCartService.remove(id);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
+        }
     }
 
     @GetMapping("/list-by-user-id/{userId}")
     public ResponseEntity<?> listByUserId(@PathVariable long userId) {
-        return this.itemsCartService.listByUserId(userId);
+        try {
+            return this.itemsCartService.listByUserId(userId);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
+        }
     }
 }

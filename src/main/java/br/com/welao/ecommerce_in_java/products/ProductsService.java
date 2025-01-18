@@ -34,8 +34,6 @@ public class ProductsService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No products found");
         }
 
-        // create pagination ?
-
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
 
