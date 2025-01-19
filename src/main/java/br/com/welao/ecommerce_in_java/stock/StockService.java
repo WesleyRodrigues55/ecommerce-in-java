@@ -108,12 +108,13 @@ public class StockService {
         return ResponseEntity.status(HttpStatus.OK).body(stock);
     }
 
-    public void addsOneMoreToTheStock(ItemsCart hasItem) {
-        var productId = hasItem.getProducts().getId();
-        var stock = this.stockRepository.findByProductsId(productId);
-        if (stock == null) {
+    public void addsOneMoreToTheStock(long productId) {
+        Optional<Stock> existingStock = this.stockRepository.findByProductsId(productId);
+        if (existingStock.isEmpty()) {
             throw new RuntimeException("Stock not found");
         }
+
+        Stock stock = existingStock.get();
 
         stock.setQuantity(stock.getQuantity() + 1);
         this.stockRepository.save(stock);

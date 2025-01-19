@@ -12,10 +12,10 @@ public class ItemsCartController {
     @Autowired
     private ItemsCartService itemsCartService;
 
-    @PutMapping("/remove/{id}")
-    public ResponseEntity<?> remove(@PathVariable long id) {
+    @PutMapping("/remove/{itemsCartId}")
+    public ResponseEntity<?> remove(@PathVariable long itemsCartId) {
         try {
-            return this.itemsCartService.remove(id);
+            return this.itemsCartService.remove(itemsCartId);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
         }

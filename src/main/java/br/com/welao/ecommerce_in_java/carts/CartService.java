@@ -2,6 +2,7 @@ package br.com.welao.ecommerce_in_java.carts;
 
 import br.com.welao.ecommerce_in_java.itemsCart.ItemsCart;
 import br.com.welao.ecommerce_in_java.itemsCart.ItemsCartRepository;
+import br.com.welao.ecommerce_in_java.stock.Stock;
 import br.com.welao.ecommerce_in_java.stock.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,19 +59,27 @@ public class CartService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid price for product ID: " + productID);
         }
 
-        var quantityItemStock = this.stockRepository.findByProductsId(productID);
-        if (quantityItemStock == null) {
+        Optional<Stock> quantityItemStock = this.stockRepository.findByProductsId(productID);
+
+        if (quantityItemStock.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Product with ID %d not found", productID));
         }
 
-        if (quantityItem > quantityItemStock.getQuantity() || quantityItem <= 0) {
+        Stock stock = quantityItemStock.get();
+
+        if (quantityItem > stock.getQuantity() || quantityItem <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Product with ID %d has insufficient stock.", productID));
         }
 
-        var debitStock = this.stockRepository.findByProductsId(productID);
-        debitStock.setQuantity(debitStock.getQuantity() - quantityItem);
+        Optional<Stock> debitStock = this.stockRepository.findByProductsId(productID);
+        if (debitStock.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Product with ID %d not found", productID));
+        }
 
-        this.stockRepository.save(debitStock);
+        Stock debit = debitStock.get();
+        debit.setQuantity(debit.getQuantity() - quantityItem);
+
+        this.stockRepository.save(debit);
     }
 
     private void createANewCart(CartDTO cartDTO) {
