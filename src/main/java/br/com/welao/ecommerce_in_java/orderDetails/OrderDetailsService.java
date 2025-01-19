@@ -8,10 +8,12 @@ import br.com.welao.ecommerce_in_java.payments.Payments;
 import br.com.welao.ecommerce_in_java.payments.PaymentsRepository;
 import br.com.welao.ecommerce_in_java.user.User;
 import br.com.welao.ecommerce_in_java.user.UserRepository;
+import br.com.welao.ecommerce_in_java.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -108,12 +110,20 @@ public class OrderDetailsService {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    /*
+    public long updatedOrderStatus(long orderDetailsId) {
+        Optional<OrderDetails> existingOrderDetails = this.orderDetailsRepository.findById(orderDetailsId);
+        if (existingOrderDetails.isEmpty()) {
+            // send email to the user talking about the purchase made (send: review purchase and status payment)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "OrderDetails not found");
+        }
 
-        CREATE:
-            - process payment using information of orderDetails
-            - update orderStatus
-            - update paymentStatus, paymentToken and transactionId
+        OrderDetails orderDetails = existingOrderDetails.get();
 
-     */
+        OrderDetailsDTO orderDetailsDTO = new OrderDetailsDTO();
+        orderDetailsDTO.setOrderStatus("CLOSED");
+        Utils.copyNonNullProperties(orderDetailsDTO, orderDetails);
+        this.orderDetailsRepository.save(orderDetails);
+
+        return orderDetails.getCart().getId();
+    }
 }

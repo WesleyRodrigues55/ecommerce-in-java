@@ -23,13 +23,14 @@ public class PaymentsController {
         }
     }
 
-    @PostMapping("/create-payment-intent/{paymentId}")
+    @PostMapping("/create-payment-intent/{paymentId}/{orderDetailsID}")
     public ResponseEntity<?> createPaymentIntent(
             @PathVariable long paymentId,
+            @PathVariable long orderDetailsID,
             @RequestBody @Valid PaymentsDTO paymentsDTO)
     {
         try {
-            return paymentsService.createPaymentIntent(paymentId, paymentsDTO);
+            return paymentsService.createPaymentIntent(paymentId, orderDetailsID, paymentsDTO);
         } catch (StripeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Stripe error: " + e.getMessage());
         } catch (Exception e) {

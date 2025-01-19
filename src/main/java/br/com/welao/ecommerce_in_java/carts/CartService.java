@@ -4,6 +4,8 @@ import br.com.welao.ecommerce_in_java.itemsCart.ItemsCart;
 import br.com.welao.ecommerce_in_java.itemsCart.ItemsCartRepository;
 import br.com.welao.ecommerce_in_java.stock.Stock;
 import br.com.welao.ecommerce_in_java.stock.StockRepository;
+import br.com.welao.ecommerce_in_java.user.User;
+import br.com.welao.ecommerce_in_java.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,28 +26,28 @@ public class CartService {
 
     public ResponseEntity<?> create(CartDTO cartDTO) {
 
-        // verify quantity items in stock
+        // move position
         try {
             validQuantityItemStockAndUpdateQuantity(cartDTO);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
-        var user = this.cartRepository.findByUserId(cartDTO.getUser().getId());
-        var cartIsOpen = this.cartRepository.findByPurchaseStatus(false);
+        var userId = cartDTO.getUser().getId();
+        Optional<Cart> existingUserInCart = this.cartRepository.findByUserIdAndPurchaseStatus(userId, false);
 
-        // verify if exists a user with a cart open
-        if (user == null || user.isEmpty() && cartIsOpen == null) {
+        if (existingUserInCart.isEmpty()) {
             createANewCart(cartDTO);
 
             return ResponseEntity.status(HttpStatus.CREATED).body("Carts created successfully");
         }
 
-        // if exists a cart open, update items cart or add new item cart
-        List<ItemsCart> existingItems = cartIsOpen.getItemsCart();
+        Cart cart = existingUserInCart.get();
+
+        List<ItemsCart> existingItems = cart.getItemsCart();
         ItemsCart newItem = CartMapper.toEntity(cartDTO).getItemsCart().get(0);
 
-        addNewItemsInCartOrUpdateExistsItems(existingItems, newItem, cartIsOpen);
+        addNewItemsInCartOrUpdateExistsItems(existingItems, newItem, cart);
 
         return ResponseEntity.status(HttpStatus.OK).body("Carts updated successfully");
     }
@@ -137,5 +139,19 @@ public class CartService {
         this.cartRepository.save(cart);
     }
 
+    public void updatedStatusCart(long cartId, float amount) {
+        Optional<Cart> existingCart = this.cartRepository.findById(cartId);
+        if (existingCart.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cart not found");
+        }
+
+        Cart cart = existingCart.get();
+
+        CartDTO cartDTO = new CartDTO();
+        cartDTO.setPurchaseStatus(true);
+        cartDTO.setTotalValue(amount);
+        Utils.copyNonNullProperties(cartDTO, cart);
+        this.cartRepository.save(cart);
+    }
 
 }
