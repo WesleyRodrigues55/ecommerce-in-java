@@ -23,20 +23,20 @@ public class PaymentsController {
         }
     }
 
-    @PostMapping("/create-payment-intent/{paymentId}/{orderDetailsID}")
-    public ResponseEntity<?> createPaymentIntent(
-            @PathVariable long paymentId,
-            @PathVariable long orderDetailsID,
-            @RequestBody @Valid PaymentsDTO paymentsDTO)
-    {
-        try {
-            return paymentsService.createPaymentIntent(paymentId, orderDetailsID, paymentsDTO);
-        } catch (StripeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Stripe error: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
-        }
-    }
+//    @PostMapping("/create-payment-intent/{paymentId}/{orderDetailsID}")
+//    public ResponseEntity<?> createPaymentIntent(
+//            @PathVariable long paymentId,
+//            @PathVariable long orderDetailsID,
+//            @RequestBody @Valid PaymentsDTO paymentsDTO)
+//    {
+//        try {
+//            return paymentsService.createPaymentIntent(paymentId, orderDetailsID, paymentsDTO);
+//        } catch (StripeException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Stripe error: " + e.getMessage());
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
+//        }
+//    }
 
     /*
 

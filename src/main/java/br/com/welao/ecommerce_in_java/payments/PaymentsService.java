@@ -4,6 +4,7 @@ import br.com.welao.ecommerce_in_java.carts.Cart;
 import br.com.welao.ecommerce_in_java.carts.CartDTO;
 import br.com.welao.ecommerce_in_java.carts.CartRepository;
 import br.com.welao.ecommerce_in_java.carts.CartService;
+import br.com.welao.ecommerce_in_java.email.EmailService;
 import br.com.welao.ecommerce_in_java.orderDetails.OrderDetails;
 import br.com.welao.ecommerce_in_java.orderDetails.OrderDetailsDTO;
 import br.com.welao.ecommerce_in_java.orderDetails.OrderDetailsRepository;
@@ -42,10 +43,7 @@ public class PaymentsService {
     private UserRepository userRepository;
 
     @Autowired
-    private OrderDetailsService orderDetailsService;
-
-    @Autowired
-    private CartService cartService;
+    private EmailService emailService;
 
     @Value("${stripe.api.key}")
     private String stripeApiKey;
@@ -68,46 +66,46 @@ public class PaymentsService {
         }
     }
 
-    private void validIfUserExistingByUserId(long userId, PaymentsDTO paymentsDTO) {
+    public void validIfUserExistingByUserId(long userId, PaymentsDTO paymentsDTO) {
         Optional<User> existingUser = this.userRepository.findById(paymentsDTO.getUser().getId());
         if (existingUser.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
     }
 
-    public ResponseEntity<?> createPaymentIntent(
+    public void createPaymentIntent(
             long paymentId,
-            long orderDetailsId,
-            PaymentsDTO paymentsDTO
-    ) throws StripeException {
+            long amount,
+            String currency
+    ) {
         try {
-            Payments payment = validatesIfThereIsPaymentById(paymentId, paymentsDTO);
-            PaymentIntent paymentIntent = createStripPaymentIntent(paymentsDTO, payment.getPaymentMethodId());
+            Payments payment = validatesIfThereIsPaymentById(paymentId, amount, currency);
+            PaymentIntent paymentIntent = createStripPaymentIntent(amount, currency, payment.getPaymentMethodId());
 
-            updatePaymentInDataBase(paymentsDTO, payment, paymentIntent);
-
-            Map<String, Object> response = buildResponseRequest(paymentIntent);
-            long cartIdInOrderDetails = this.orderDetailsService.updatedOrderStatus(orderDetailsId);
-            this.cartService.updatedStatusCart(cartIdInOrderDetails, paymentsDTO.getAmount());
-
-            // send email to the user talking about the purchase made (send: review purchase and status payment)
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            updatePaymentInDataBase(payment, paymentIntent);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
-    private PaymentIntent createStripPaymentIntent(
-            PaymentsDTO paymentsDTO,
+    private void messagePaymentApproved(String to) {
+        String subject = "Payment method approved successfully!";
+        String body = "Your payment method has been approved!";
+
+        this.emailService.sendEmail(to, subject, body);
+    }
+
+    public PaymentIntent createStripPaymentIntent(
+            long amount,
+            String currency,
             String paymentMethodId
     ) throws StripeException {
         Stripe.apiKey = stripeApiKey;
 
         PaymentIntentCreateParams params =
                 PaymentIntentCreateParams.builder()
-                        .setAmount(paymentsDTO.getAmount())
-                        .setCurrency(paymentsDTO.getCurrency())
+                        .setAmount(amount)
+                        .setCurrency(currency)
                         .setPaymentMethod(paymentMethodId)
                         .setAutomaticPaymentMethods(
                                 PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
@@ -121,31 +119,34 @@ public class PaymentsService {
         return PaymentIntent.create(params);
     }
 
-    private Payments validatesIfThereIsPaymentById(long paymentId, PaymentsDTO paymentsDTO) {
+    public Payments validatesIfThereIsPaymentById(long paymentId, long amount, String currency) {
         Optional<Payments> existingPayment = this.paymentsRepository.findById(paymentId);
         if (existingPayment.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found");
         }
 
-        if (paymentsDTO.getAmount() <= 0) {
+        if (amount <= 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid amount");
         }
 
-        if (paymentsDTO.getCurrency() == null || paymentsDTO.getCurrency().isBlank()) {
+        if (currency == null || currency.isBlank()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Currency is required");
         }
 
         return existingPayment.get();
     }
 
-    private void updatePaymentInDataBase(
-            PaymentsDTO paymentsDTO,
+    public void updatePaymentInDataBase(
             Payments payment,
             PaymentIntent paymentIntent
     ) {
+
+        PaymentsDTO paymentsDTO = new PaymentsDTO();
         paymentsDTO.setPaymentStatus(paymentIntent.getStatus());
         paymentsDTO.setPaymentIntentId(paymentIntent.getId());
         paymentsDTO.setPaymentToken(paymentIntent.getClientSecret());
+        paymentsDTO.setAmount(payment.getAmount());
+        paymentsDTO.setCurrency(payment.getCurrency());
 
         Utils.copyNonNullProperties(paymentsDTO, payment);
         this.paymentsRepository.save(payment);
