@@ -24,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderDetailsService {
@@ -157,20 +158,15 @@ public class OrderDetailsService {
         var userId = orderDetails.getUser().getId();
 
         try {
-            var emailUser = this.userService.getEmailUserById(userId);
-
-            // process payment intent
             this.paymentsService.createPaymentIntent(paymentId, amount, currency);
 
-            // update status purchase in: cart, orderDetails and payment
             long cartIdInOrderDetails = updatedOrderStatus(orderDetailsId);
             this.cartService.updatedStatusCart(cartIdInOrderDetails, amount);
 
-            // send email for user: talking about purchase, payment approved and review buy
+            var emailUser = this.userService.getEmailUserById(userId);
             this.messagePurchaseSuccessfully(emailUser, orderDetails);
 
-            // return response
-            return ResponseEntity.status(HttpStatus.CREATED).body("OrderDetails updated successfully");
+            return ResponseEntity.status(HttpStatus.CREATED).body("OrderDetails has been completed successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -179,8 +175,29 @@ public class OrderDetailsService {
     public void messagePurchaseSuccessfully(String to,OrderDetails orderDetails) {
         String subject = "Your purchase has finished successfully!";
 
-        String body = "<!DOCTYPE html>" +
-            "<html lang=\"pt-BR\">" +
+        String body = generateOrderDetailsHeadHtml() +
+                "<body style=\"text-align:center; max-width: 600px; margin: 0 auto;\">" +
+                    "<h1>Order Confirmation #" + orderDetails.getId() + "</h1>" +
+                    "<p>Hello,</p>" +
+                    "<p>Thank you for your purchase! Here are the details your order:</p>" +
+                    "<hr>" +
+                    generateOrderDetailsTableHtml(orderDetails) +
+                    "<hr>" +
+                    generateShippingAddressTableHtml(orderDetails) +
+                    "<hr>" +
+                    generateOrderItemsTableHtml(orderDetails) +
+                    "<hr>" +
+                    "<p>If you have any questions or need support, please contact us.</p>" +
+                    "<p><strong>Best regards,</strong><br>EcommerceInJava</p>" +
+                "</body>" +
+            "</html>";
+
+        this.emailService.sendHtmlEmail(to, subject, body);
+    }
+
+    private String generateOrderDetailsHeadHtml() {
+        return "<!DOCTYPE html>" +
+                "<html lang=\"pt-BR\">" +
                 "<head>" +
                     "<meta charset=\"UTF-8\">" +
                     "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" +
@@ -198,51 +215,93 @@ public class OrderDetailsService {
                             "background-color: #f2f2f2;" +
                         "}" +
                     "</style>" +
-                "</head>" +
-                "<body style=\"text-align:center; max-width: 600px; margin: 0 auto;\">" +
-                    "<h1>Order Confirmation #" + 1 + "</h1>" +
-                    "<p>Hello,</p>" +
-                    "<p>Thank you for your purchase! Here are the details your order:</p>" +
-                    "<hr>" +
-                    "<h2>Order Details:</h2>" +
-                    "<p><strong>Order ID:</strong> 4</p>" +
-                    "<p><strong>Order Data:</strong> 19/01/2025 às 16:01:42</p>" +
-                    "<p><strong>Order Status:</strong> Fechado</p>" +
-                    "<p><strong>Payment Method:</strong> Cartão</p>" +
-                    "<hr>" +
-                    "<h2>Shipping address:</h2>" +
-                    "<p><strong>Street:</strong> Rua A, nº 124</p>" +
-                    "<p><strong>Complement:</strong> 123</p>" +
-                    "<p><strong>City/State:</strong> City A / A</p>" +
-                    "<p><strong>Zip Code:</strong> 123</p>" +
-                    "<hr>" +
-                    "<h2>Order Items</h2>" +
-                    "<table>" +
-                        "<thead>" +
-                            "<tr>" +
-                                "<th>Product</th>" +
-                                "<th>Quantity</th>" +
-                                "<th>Unit Price</th>" +
-                                "<th>Total</th>" +
-                            "</tr>" +
-                        "</thead>" +
-                        "<tbody>" +
-                            "<tr>" +
-                                "<td>Product B</td>" +
-                                "<td>20</td>" +
-                                "<td>R$ 10,00</td>" +
-                                "<td>R$ 200,00</td>" +
-                            "</tr>" +
-                        "</tbody>" +
-                    "</table>" +
-                    "<p><strong>Order Total:</strong> R$ 200,00</p>" +
-                    "<hr>" +
-                    "<p>If you have any questions or need support, please contact us.</p>" +
-                    "<p><strong>Best regards,</strong><br>EcommerceInJava</p>" +
-                "</body>" +
-            "</html>";
-
-        this.emailService.sendHtmlEmail(to, subject, body);
+                "</head>";
     }
 
+    private String generateOrderDetailsTableHtml(OrderDetails orderDetails) {
+        return "<table>" +
+                    "<thead>" +
+                        "<tr>" +
+                            "<th colspan=\"2\">Order Details</th>" +
+                        "</tr>" +
+                    "</thead>" +
+                    "<tbody>" +
+                        "<tr>" +
+                            "<th>Order ID:</th>" +
+                            "<td>"+ orderDetails.getId() +"</td>" +
+                        "</tr>" +
+                        "<tr>" +
+                            "<th>Order Data:</th>" +
+                            "<td>"+ orderDetails.getOrderDate() +"</td>" +
+                        "</tr>" +
+                        "<tr>" +
+                            "<th>Order Status:</th>" +
+                            "<td>"+ orderDetails.getOrderStatus() +"</td>" +
+                        "</tr>" +
+                        "<tr>" +
+                            "<th>Payment Method:</th>" +
+                            "<td>"+ orderDetails.getPayments().getPaymentMethodType() +"</td>" +
+                        "</tr>" +
+                    "</tbody>" +
+                "</table>";
+    }
+
+    private String generateOrderItemsTableHtml(OrderDetails orderDetails) {
+        return "<table>" +
+                "<thead>" +
+                    "<tr>" +
+                        "<th colspan=\"4\">Order Items</th>" +
+                    "</tr>" +
+                    "<tr>" +
+                        "<th>Product</th>" +
+                        "<th>Quantity</th>" +
+                        "<th>Unit Price</th>" +
+                        "<th>Total</th>" +
+                    "</tr>" +
+                "</thead>" +
+                "<tbody>" +
+                    orderDetails.getCart().getItemsCart().stream()
+                        .map(item ->
+                            "<tr>" +
+                                "<td>"+ item.getProducts().getName() +"</td>" +
+                                "<td>"+ item.getQuantity() +"</td>" +
+                                "<td>R$ "+ item.getPrice() +"</td>" +
+                                "<td>R$ "+ item.getPrice() * item.getQuantity() +"</td>" +
+                            "</tr>"
+                        )
+                        .collect(Collectors.joining()) +
+                    "<tr>" +
+                        "<th colspan=\"4\">Total: R$"+ orderDetails.getTotalValue() +"</th>" +
+                    "</tr>" +
+                "</tbody>" +
+            "</table>";
+    }
+
+    private String generateShippingAddressTableHtml(OrderDetails orderDetails) {
+        return "<table>" +
+                    "<thead>" +
+                        "<tr>" +
+                            "<th colspan=\"2\">Shipping address</th>" +
+                        "</tr>" +
+                    "</thead>" +
+                    "<tbody>" +
+                        "<tr>" +
+                            "<th>Street:</th>" +
+                            "<td>"+ orderDetails.getAddresses().getStreet() +"</td>" +
+                        "</tr>" +
+                        "<tr>" +
+                            "<th>Complement:</th>" +
+                            "<td>"+ orderDetails.getAddresses().getComplement() +"</td>" +
+                        "</tr>" +
+                        "<tr>" +
+                            "<th>City/State:</th>" +
+                            "<td>"+ orderDetails.getAddresses().getCity() +" / "+ orderDetails.getAddresses().getState() +"</td>" +
+                        "</tr>" +
+                        "<tr>" +
+                            "<th>Zip Code:</th>" +
+                            "<td>"+ orderDetails.getAddresses().getPostalCode() +"</td>" +
+                        "</tr>" +
+                    "</tbody>" +
+            "</table>";
+    }
 }
