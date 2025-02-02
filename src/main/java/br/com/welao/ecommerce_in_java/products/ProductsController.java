@@ -1,5 +1,7 @@
 package br.com.welao.ecommerce_in_java.products;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -10,12 +12,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("product")
+@Tag(name = "Products", description = "API for management the Products.")
 public class ProductsController {
 
     @Autowired
     private ProductsService productsService;
 
     @PostMapping("/register")
+    @Operation(summary = "Register a new item on product", description = "Returns the item created in product.")
     public ResponseEntity<?> register(@RequestBody @Valid ProductsDTO productsDTO) {
         try {
             return this.productsService.register(productsDTO);
@@ -25,6 +29,7 @@ public class ProductsController {
     }
 
     @GetMapping("/list")
+    @Operation(summary = "List all items on product.", description = "Returns all items on product.")
     public ResponseEntity<?> list() {
         try {
             return this.productsService.list();
@@ -34,6 +39,7 @@ public class ProductsController {
     }
 
     @GetMapping ("/list-paginated-items")
+    @Operation(summary = "Lists all items on product like a pagination.", description = "Returns all items on product in a pagination.")
     public ResponseEntity<?> listPaginatedItems(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -47,6 +53,7 @@ public class ProductsController {
     }
 
     @GetMapping("/list/{id}")
+    @Operation(summary = "Lists an item by id.", description = "Returns the item listed.")
     public ResponseEntity<?> listByID(@PathVariable long id) {
         try {
             return this.productsService.listById(id);
@@ -56,6 +63,7 @@ public class ProductsController {
     }
 
     @PutMapping("/update/{id}")
+    @Operation(summary = "Updates an item by id.", description = "Returns the item updated.")
     public ResponseEntity<?> update(@PathVariable long id, @RequestBody @Valid ProductsDTO productsDTO) {
         try {
             return this.productsService.update(id, productsDTO);
@@ -65,6 +73,7 @@ public class ProductsController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @Operation(summary = "Disables an item by id.", description = "The item is disable and returned.")
     public ResponseEntity<?> delete(@PathVariable long id) {
         try {
             return this.productsService.delete(id);
@@ -74,6 +83,7 @@ public class ProductsController {
     }
 
     @PutMapping("/enable/{id}")
+    @Operation(summary = "Enables an item by id.", description = "The item is enable and returned.")
     public ResponseEntity<?> enable(@PathVariable long id) {
         try {
             return this.productsService.enable(id);

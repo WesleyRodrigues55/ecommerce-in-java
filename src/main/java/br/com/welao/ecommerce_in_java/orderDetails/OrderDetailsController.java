@@ -1,6 +1,8 @@
 package br.com.welao.ecommerce_in_java.orderDetails;
 
 import com.stripe.exception.StripeException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,12 +11,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("order-details")
+@Tag(name = "Order Details", description = "API for managements the Order Details.")
 public class OrderDetailsController {
 
     @Autowired
     private OrderDetailsService orderDetailsService;
 
     @PostMapping("/create")
+    @Operation(summary = "Creates an new orderDetails.", description = "Returns the orderDetails created.")
     public ResponseEntity<?> create(@RequestBody @Valid OrderDetailsDTO orderDetailsDTO) {
         try {
             return this.orderDetailsService.create(orderDetailsDTO);
@@ -24,6 +28,7 @@ public class OrderDetailsController {
     }
 
     @PutMapping("/update/{orderDetailsId}")
+    @Operation(summary = "Updates the orderDetails by id.", description = "Check the payment status and close the orderDetails, cart and methodPayment.")
     public ResponseEntity<?> update(
             @PathVariable long orderDetailsId,
             @RequestBody @Valid String currency
@@ -39,6 +44,7 @@ public class OrderDetailsController {
 
 
     @GetMapping("/list-by-order-details-id/{orderDetailsId}")
+    @Operation(summary = "Lists the orderDetails by id.", description = "Returns overview of orderDetails (purchase)")
     public ResponseEntity<?> listByOrderDetailsId(@PathVariable long orderDetailsId) {
         try {
             return this.orderDetailsService.listByOrderDetailsId(orderDetailsId);

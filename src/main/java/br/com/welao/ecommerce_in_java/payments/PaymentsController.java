@@ -1,6 +1,8 @@
 package br.com.welao.ecommerce_in_java.payments;
 
 import com.stripe.exception.StripeException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,12 +11,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("payments")
+@Tag(name = "Payment", description = "API for managements the payments.")
 public class PaymentsController {
 
     @Autowired
     private PaymentsService paymentsService;
 
     @PostMapping("/create-payment-method")
+    @Operation(summary = "Creates an payment method.", description = "Returns the created paymentId.")
     public ResponseEntity<?> createPaymentMethod(@RequestBody @Valid PaymentsDTO paymentsDTO) {
         try {
             return this.paymentsService.createPaymentMethod(paymentsDTO);
